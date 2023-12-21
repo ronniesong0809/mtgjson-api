@@ -26,8 +26,17 @@ public class MtgJsonApiController {
     }
 
     @GetMapping("/card")
-    public ResponseEntity<ArrayList<CardSet>> getCard(@RequestParam(value = "name") String name) {
-        ArrayList<CardSet> card = MtgJsonApiService.getCard(name);
+    public ResponseEntity<ArrayList<CardSet>> getCard(
+            @RequestParam(value = "name") String name,
+            @RequestParam(value = "mana", required = false) Integer mana,
+            @RequestParam(value = "power", required = false) String power,
+            @RequestParam(value = "toughness", required = false) String toughness,
+            @RequestParam(value = "text", required = false) String text,
+            @RequestParam(value = "setCode", required = false) String setCode,
+            @RequestParam(value = "types", required = false) String types,
+            @RequestParam(value = "subtypes", required = false) String subtypes
+    ) {
+        ArrayList<CardSet> card = MtgJsonApiService.getCard(name, mana, power, toughness, text, setCode, types, subtypes);
 
         return new ResponseEntity<>(card, HttpStatus.OK);
     }
