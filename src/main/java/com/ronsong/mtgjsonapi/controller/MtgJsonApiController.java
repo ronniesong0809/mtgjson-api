@@ -1,7 +1,9 @@
 package com.ronsong.mtgjsonapi.controller;
 
+import com.mongodb.bulk.BulkWriteResult;
 import com.ronsong.mtgjsonapi.model.CardSet;
 import com.ronsong.mtgjsonapi.service.MtgJsonApiService;
+import com.ronsong.mtgjsonapi.service.MtgJsonEtlService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +18,12 @@ import java.util.ArrayList;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class MtgJsonApiController {
-    private final MtgJsonApiService MtgJsonApiService;
+    private final MtgJsonApiService mtgJsonApiService;
+    private final MtgJsonEtlService mtgJsonEtlService;
 
     @GetMapping("/all")
     public ResponseEntity<ArrayList<CardSet>> getCards() {
-        ArrayList<CardSet> cards = MtgJsonApiService.getCards();
+        ArrayList<CardSet> cards = mtgJsonApiService.getCards();
 
         return new ResponseEntity<>(cards, HttpStatus.OK);
     }
@@ -36,8 +39,14 @@ public class MtgJsonApiController {
             @RequestParam(value = "types", required = false) String types,
             @RequestParam(value = "subtypes", required = false) String subtypes
     ) {
-        ArrayList<CardSet> card = MtgJsonApiService.getCard(name, mana, power, toughness, text, setCode, types, subtypes);
+        ArrayList<CardSet> card = mtgJsonApiService.getCard(name, mana, power, toughness, text, setCode, types, subtypes);
 
         return new ResponseEntity<>(card, HttpStatus.OK);
+    }
+
+    @GetMapping("/save")
+    public ResponseEntity<Boolean> save() {
+        mtgJsonEtlService.save();
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }
