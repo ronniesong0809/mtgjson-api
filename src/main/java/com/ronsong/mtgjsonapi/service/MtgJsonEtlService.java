@@ -1,28 +1,31 @@
 package com.ronsong.mtgjsonapi.service;
 
+import com.mongodb.bulk.BulkWriteResult;
 import com.ronsong.mtgjsonapi.model.CardSet;
-import com.ronsong.mtgjsonapi.repository.MtgJsonRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.BulkOperationException;
+import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MtgJsonEtlService {
-    private final MtgJsonRepository mtgJsonRepository;
+    private final MongoTemplate mongoTemplate;
 
-    public void save() {
-        ArrayList<CardSet> cardSet = Utils.getCardSet();
-        int size = cardSet.size();
+    public BulkWriteResult save() {
+        BulkOperations bulkOperations = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, CardSet.class);
+        bulkOperations.remove(new Query());
+        bulkOperations.insert(Utils.getCardSet());
 
-        for (int i = 0; i < cardSet.size(); i++) {
-            CardSet set = cardSet.get(i);
-            mtgJsonRepository.save(set);
-            log.info("{}/{}, {} inserted", i, size, set.getName());
+        try {
+            return bulkOperations.execute();
+        } catch (BulkOperationException e) {
+            log.error(e.getMessage());
+            return e.getResult();
         }
-
     }
 }

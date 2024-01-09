@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,5 +34,9 @@ public class Utils {
             log.error("{}", e.getMessage());
             return new ArrayList<>();
         }
+    }
+
+    public static boolean contains(String wantedStr, String source) {
+        return Pattern.compile(Pattern.quote(source), Pattern.CASE_INSENSITIVE).matcher(wantedStr).find();
     }
 }

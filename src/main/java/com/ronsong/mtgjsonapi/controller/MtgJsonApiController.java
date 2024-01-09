@@ -5,6 +5,7 @@ import com.ronsong.mtgjsonapi.model.CardSet;
 import com.ronsong.mtgjsonapi.service.MtgJsonApiService;
 import com.ronsong.mtgjsonapi.service.MtgJsonEtlService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -40,13 +42,16 @@ public class MtgJsonApiController {
             @RequestParam(value = "subtypes", required = false) String subtypes
     ) {
         ArrayList<CardSet> card = mtgJsonApiService.getCard(name, mana, power, toughness, text, setCode, types, subtypes);
+        log.info("GET /card");
 
         return new ResponseEntity<>(card, HttpStatus.OK);
     }
 
     @GetMapping("/save")
-    public ResponseEntity<Boolean> save() {
-        mtgJsonEtlService.save();
-        return new ResponseEntity<>(true, HttpStatus.OK);
+    public ResponseEntity<BulkWriteResult> save() {
+        log.info("GET /save");
+
+        BulkWriteResult result = mtgJsonEtlService.save();
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
