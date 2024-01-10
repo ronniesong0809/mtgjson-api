@@ -6,6 +6,7 @@ import com.ronsong.mtgjsonapi.service.MtgJsonApiService;
 import com.ronsong.mtgjsonapi.service.MtgJsonEtlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -24,14 +25,16 @@ public class MtgJsonApiController {
     private final MtgJsonEtlService mtgJsonEtlService;
 
     @GetMapping("/all")
-    public ResponseEntity<ArrayList<CardSet>> getCards() {
-        ArrayList<CardSet> cards = mtgJsonApiService.getCards();
+    public ResponseEntity<Page<CardSet>> getCards(
+            @RequestParam(value = "page", required = false) int page
+    ) {
+        Page<CardSet> cards = mtgJsonApiService.getCards(page);
 
         return new ResponseEntity<>(cards, HttpStatus.OK);
     }
 
     @GetMapping("/card")
-    public ResponseEntity<ArrayList<CardSet>> getCard(
+    public ResponseEntity<List<CardSet>> getCard(
             @RequestParam(value = "name") String name,
             @RequestParam(value = "mana", required = false) Integer mana,
             @RequestParam(value = "power", required = false) String power,
@@ -41,7 +44,7 @@ public class MtgJsonApiController {
             @RequestParam(value = "types", required = false) String types,
             @RequestParam(value = "subtypes", required = false) String subtypes
     ) {
-        ArrayList<CardSet> card = mtgJsonApiService.getCard(name, mana, power, toughness, text, setCode, types, subtypes);
+        List<CardSet> card = mtgJsonApiService.getCard(name, mana, power, toughness, text, setCode, types, subtypes);
         log.info("GET /card");
 
         return new ResponseEntity<>(card, HttpStatus.OK);
